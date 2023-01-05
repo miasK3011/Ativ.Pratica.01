@@ -22,6 +22,7 @@ def main(argv):
     h = Histograma(matrix, x, y)
     h.run()
     
+    # Salvar a imagem com histograma normalizado
     #img_normalizada = h.create_image()
     #img_normalizada.save('Out/Lena-Normalizado.jpeg')
 
