@@ -1,11 +1,22 @@
+""" 
+    Universidade Federal Do Piauí - UFPI
+    Autor: Neemias Calebe Pereira Freire
+    Ciência da Computação - Processamento Digital de Imagens
+"""
+
 import matplotlib.pyplot as plt
 from PIL import Image
 
 class Histograma():
+    """ 
+        Classe que executa algoritmos de normalização e equalização de histograma.
+        É possível exibir o histograma original, normalizado e acumulado bem como salvar a imagem
+        equalizada. 
+    """
     def __init__(self, matrix, x, y):
         self.matrix = matrix
-        self.x, self.y = x, y
-        self.pixels_totais = x*y
+        self.x, self.y = int(x), int(y)
+        self.pixels_totais = self.x * self.y
         
     def run(self):
         """ 
@@ -16,19 +27,8 @@ class Histograma():
             for j in range(self.y):
                 self.bins[self.matrix[i, j]] += 1
         
-        pdf = self.normalizar()
+        self.pdf, self.cdf = self.normalizar()
         
-        plt.figure('Histograma')
-        plt.bar(range(256), self.bins)
-        
-        plt.figure('Histograma Normalizado')
-        plt.bar(range(256), pdf)
-        
-        plt.figure('Histograma Acumulado')
-        plt.bar(range(256), self.cdf_values)
-        
-        plt.show()
-
     def normalizar(self):
         """ 
         Calcula o histograma normalizado e o acumulado da imagem.
@@ -36,23 +36,36 @@ class Histograma():
         pdf = [bin / self.pixels_totais for bin in self.bins]
 
         cdf = 0
-        self.cdf_values = [0] * 256
+        cdf_values = [0] * 256
         for i in range(256):
             cdf += pdf[i]
-            self.cdf_values[i] = cdf
-            
-        return pdf
+            cdf_values[i] = cdf
         
-
-    def create_image(self):
-        """ 
-        Cria uma nova imagem utilizando o novo histograma
-        """
-        image = Image.new("L", (self.x, self.y))
-        pixels = image.load()
+        return pdf, cdf_values
+    
+    def equalizar(self):
+        
+        imagem_equalizada = Image.new("L", (self.x, self.y))
+        pixels = imagem_equalizada.load()
         
         for i in range(self.x):
             for j in range(self.y):
-                pixels[i, j] = int(self.cdf_values[self.matrix[i, j]] * 255)
+                pixels[i, j] = int(self.cdf[self.matrix[i, j]] * 255)
+        
+        return imagem_equalizada
+ 
+        
+    def show_histogram(self):
+        plt.figure('Histogramas')
 
-        return image
+        plt.subplot(2, 2, 1)
+        plt.bar(range(256), self.bins)
+
+        plt.subplot(2, 2, 2)
+        plt.bar(range(256), self.pdf)
+
+        plt.subplot(2, 2, 3)
+        plt.bar(range(256), self.cdf)
+
+        plt.show()
+        
